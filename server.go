@@ -60,11 +60,10 @@ func toPdf(inputFilename string,requestId string) {
 	}
 	opts := []string{
 		"-c",
-		//"ls",
 		" " + chrome +
 		" --headless"+
 		" --disable-gpu"+
-		" --print-to-pdf=/tmp/convert-" + requestId + "-output.pdf" +
+		" --print-to-pdf=/tmp/convert-" + requestId + "-output.pdf"+
 		" file://" + inputFilename,
 	}
 	cmd := exec.Command(bash, opts...)
@@ -94,7 +93,7 @@ func getUuid() string {
 func main() {
 	http.HandleFunc("/", example)            // set router
 	http.HandleFunc("/convert", handleConvertRequest)       // set router
-	err := http.ListenAndServe(":9190", nil) // set listen port use listenandservetls when we haver a cert.
+	err := http.ListenAndServe(":9190", nil) // set listen port use listenandservetls when we have a cert.
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
