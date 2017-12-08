@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"github.com/satori/go.uuid"
 )
 
 func example(w http.ResponseWriter, r *http.Request) {
@@ -83,11 +84,14 @@ func toPdf(inputFilename string,requestId string) {
 }
 
 func getUuid() string {
-	out, err := exec.Command("uuidgen").Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return strings.Trim(string(out), "\n")
+	//out, err := exec.Command("uuidgen").Output()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//return strings.Trim(string(out), "\n")
+
+	return uuid.NewV4().String();
+
 }
 
 func main() {
