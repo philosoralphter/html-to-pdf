@@ -54,7 +54,7 @@ func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
 
 func toPdf(inputFilename string,requestId string) {
 	//convert to pdf
-	var bash = "/bin/bash"
+	var bash = "/bin/sh"
 	var chrome = os.Getenv("CHROME_LOCATION")
 	if(chrome == "") {
 		chrome = "/usr/local/Caskroom/google-chrome/latest/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome"; //location on my mac for development/testing
