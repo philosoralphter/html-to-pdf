@@ -54,20 +54,18 @@ func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
 
 func toPdf(inputFilename string,requestId string) {
 	//convert to pdf
-	var bash = "/bin/sh"
+	//var bash = "/bin/sh"
 	var chrome = os.Getenv("CHROME_LOCATION")
 	if(chrome == "") {
-		chrome = "/usr/local/Caskroom/google-chrome/latest/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome"; //location on my mac for development/testing
+		chrome = "/usr/local/Caskroom/google-chrome/latest/Google Chrome.app/Contents/MacOS/Google Chrome"; //location on my mac for development/testing
 	}
 	opts := []string{
-		"-c",
-		" " + chrome +
-		" --headless"+
-		" --disable-gpu"+
-		" --print-to-pdf=/tmp/convert-" + requestId + "-output.pdf"+
-		" file://" + inputFilename,
+		"--headless",
+		"--disable-gpu",
+		"--print-to-pdf=/tmp/convert-" + requestId + "-output.pdf",
+		"file://" + inputFilename,
 	}
-	cmd := exec.Command(bash, opts...)
+	cmd := exec.Command(chrome, opts...)
 
 	out, cmdErr := cmd.CombinedOutput()
 
