@@ -61,12 +61,14 @@ func toPdf(inputFilename string,requestId string) {
 		chrome = "/usr/local/Caskroom/google-chrome/latest/Google Chrome.app/Contents/MacOS/Google Chrome"; //location on my mac for development/testing
 	}
 	opts := []string{
+		"-c",
+		chrome,
 		"--headless",
 		"--disable-gpu",
 		"--print-to-pdf=/tmp/convert-" + requestId + "-output.pdf",
 		"file://" + inputFilename,
 	}
-	cmd := exec.Command(chrome, opts...)
+	cmd := exec.Command("sh", opts...)
 
 	out, cmdErr := cmd.CombinedOutput()
 
