@@ -30,6 +30,7 @@ func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
 	var requestId string = getUuid()
 
 	var tempFileName string = "/tmp/convert-" + requestId + "-input.html"
+
 	//write file to tmp
 	inputFile, createError := os.Create(tempFileName)
 	bytes, pipeErr := io.Copy(inputFile, r.Body)
@@ -72,7 +73,9 @@ func toPdf(inputFilename string,requestId string) {
 	if cmdErr != nil {
 		log.Printf("Command finished with error: %v", cmdErr)
 		log.Printf("Output: %s", out)
-		log.Print(cmdErr)
+
+		foundPath, _ := exec.LookPath(chrome)
+		log.Print("lookpath: " + foundPath);
 		return;
 	}
 
