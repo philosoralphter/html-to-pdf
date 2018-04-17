@@ -29,7 +29,8 @@ func example(w http.ResponseWriter, r *http.Request) {
 func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
 	var requestId string = getUuid()
 
-	var tempFileName string = "/tmp/convert-" + requestId + "-input.html"
+	var tempFileName string = getInputFileName(requestId)
+	var outputFile string = getOutputFileName(requestId)
 
 	//write file to tmp
 	inputFile, createError := os.Create(tempFileName)
@@ -40,33 +41,40 @@ func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println("Created file: ", tempFileName, "bytes:" , bytes)
 
 	//convert
-	toPdf(tempFileName, requestId)
+	toPdf(requestId)
 
-	//Sned pdf
-	_, copyError2 := os.Stat(tempFileName)
+	//Send pdf
+	_, copyError2 := os.Stat(outputFile)
 	if copyError2 != nil {
 		fmt.Println("Output file does not exist!")
 		http.Error(w, "Conversion Failed", 500)
 		return;
 	}
 
-	http.ServeFile(w, r, tempFileName);
+	log.Println("Serving file: ", outputFile, "bytes:" , bytes)
+
+	http.ServeFile(w, r, outputFile);
 }
 
-func toPdf(inputFilename string,requestId string) {
+func toPdf(requestId string) {
 	//convert to pdf
 	//var bash = "/bin/sh"
+	var inputFilename = getInputFileName(requestId);
+	var outputFilename = getOutputFileName(requestId);
+
 	var chrome = os.Getenv("CHROME_LOCATION")
 	if(chrome == "") {
-		chrome = "/usr/local/Caskroom/google-chrome/latest/Google Chrome.app/Contents/MacOS/Google Chrome"; //location on my mac for development/testing
+		chrome = "/usr/local/Caskroom/google-chrome/latest/Google Chrome.app/Contents/MacOS/Google Chrome"; //location in homebrew (mac) for development/testing
 	}
-	opts := []string{
+
+	var opts = []string{
 		"-c",
-		chrome,
-		"--headless",
-		"--disable-gpu",
-		"--print-to-pdf=/tmp/convert-" + requestId + "-output.pdf",
-		"file://" + inputFilename,
+		chrome +
+		" --headless" +
+		" --no-sandbox" +
+		" --disable-gpu" +
+		" --print-to-pdf=" + outputFilename +
+		" file://" + inputFilename,
 	}
 	cmd := exec.Command("sh", opts...)
 
@@ -97,9 +105,20 @@ func getUuid() string {
 
 }
 
+func getInputFileName(requestId string) string {
+	return "/tmp/convert-" + requestId + "-input.html"
+}
+
+func getOutputFileName(requestId string) string {
+	return "/tmp/convert-" + requestId + "-output.pdf"
+}
+
 func main() {
 	http.HandleFunc("/", example)            // set router
 	http.HandleFunc("/convert", handleConvertRequest)       // set router
+
+	log.Print("Starting Server...")
+
 	err := http.ListenAndServe(":9190", nil) // set listen port use listenandservetls when we have a cert.
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
