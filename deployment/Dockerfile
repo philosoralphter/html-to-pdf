@@ -14,6 +14,8 @@ gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub' > /etc/yum.repos.d
 RUN yum install -y epel-release
 RUN yum install -y libappindicator-gtk3
 RUN yum install -y google-chrome-stable
+RUN yum install -y google-noto-sans-fonts
+RUN yum install -y google-noto-serif-fonts
 
 ENV CHROME_LOCATION=/opt/google/chrome/chrome
 
