@@ -10,6 +10,7 @@ baseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch\n\
 enabled=1\n\
 gpgcheck=1\n\
 gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub' > /etc/yum.repos.d/google-chrome.repo"
+
 RUN yum install -y epel-release
 RUN yum install -y libappindicator-gtk3
 RUN yum install -y google-chrome-stable

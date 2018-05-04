@@ -2,4 +2,5 @@
 .idea
 *.imlwq
 
+.DS_Store
 deployment/output

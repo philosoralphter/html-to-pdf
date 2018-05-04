@@ -64,7 +64,7 @@ func toPdf(requestId string) {
 
 	var chrome = os.Getenv("CHROME_LOCATION")
 	if(chrome == "") {
-		chrome = "/usr/local/Caskroom/google-chrome/latest/Google Chrome.app/Contents/MacOS/Google Chrome"; //location in homebrew (mac) for development/testing
+		chrome = "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome"; //location in homebrew (mac) for development/testing
 	}
 
 	var opts = []string{
