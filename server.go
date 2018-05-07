@@ -11,19 +11,19 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func example(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()       // parse arguments, you have to call this by yourself
-	fmt.Println(r.Form) // print form information in server side
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
+func defaultRoute(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	fmt.Println(r.Form)
+	fmt.Println("URL", r.URL)
 
 	for k, v := range r.Form {
+		fmt.Println("Query Params:")
 		fmt.Println("key:", k)
 		fmt.Println("val:", strings.Join(v, ""))
 	}
 
-	fmt.Fprint(w, "Did you mean to /convert a file?") // send data to client side
+	fmt.Fprint(w, "Did you mean to /convert a file?")
 }
 
 func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
@@ -32,13 +32,43 @@ func handleConvertRequest(w http.ResponseWriter, r *http.Request) {
 	var tempFileName string = getInputFileName(requestId)
 	var outputFile string = getOutputFileName(requestId)
 
+	r.ParseForm();
+
 	//write file to tmp
+	var bytes int64;
 	inputFile, createError := os.Create(tempFileName)
-	bytes, pipeErr := io.Copy(inputFile, r.Body)
-	if pipeErr != nil || createError != nil {
-		fmt.Println("Error copying body to local file")
+	defer inputFile.Close();
+
+	//Determine if using body or external URL
+	if targetURL, urlIsSet := r.Form["from-url"]; urlIsSet {
+
+		log.Println("Using URL to fetch Original HTML");
+		// Get the page
+		resp, err := http.Get(strings.Join(targetURL, ""))
+		if err != nil {
+			w.WriteHeader(404)
+			http.Se
+			//return err
+		}
+		defer resp.Body.Close()
+
+		// Write the body to file
+		bytes1, err := io.Copy(inputFile, resp.Body)
+		bytes = bytes1;
+		if err != nil {
+			//return err
+		}
+
+	} else {
+		//Use posted body
+		bytes2, pipeErr := io.Copy(inputFile, r.Body)
+		bytes = bytes2
+		if pipeErr != nil || createError != nil {
+			fmt.Println("Error copying body to local file")
+		}
 	}
-	log.Println("Created file: ", tempFileName, "bytes:" , bytes)
+
+	log.Println("Created file: ", tempFileName)
 
 	//convert
 	toPdf(requestId)
@@ -114,8 +144,8 @@ func getOutputFileName(requestId string) string {
 }
 
 func main() {
-	http.HandleFunc("/", example)            // set router
-	http.HandleFunc("/convert", handleConvertRequest)       // set router
+	http.HandleFunc("/", defaultRoute)                // set router
+	http.HandleFunc("/convert", handleConvertRequest) // set router
 
 	log.Print("Starting Server...")
 
